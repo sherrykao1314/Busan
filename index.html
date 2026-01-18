@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>釜山自由行-最強Pass 48H行程</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu&display=swap" rel="stylesheet">
+    <style>
+        /* --- 全局設定 --- */
+        * {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft JhengHei", "Helvetica Neue", sans-serif;
+            height: 100dvh; 
+            overflow: hidden; 
+            background-color: transparent;
+            overscroll-behavior: none;
+        }
+
+        /* --- 1. 背景層設定 --- */
+        .background-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; 
+            overflow: hidden; 
+        }
+        
+        .background-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background-image: url('https://raw.githubusercontent.com/sherrykao1314/Busan/main/123.PNG');
+            background-size: cover;
+            background-position: center;
+            opacity: 1.0; 
+            transform: translateY(-50px) scale(1.1);
+            transform-origin: top center;
+        }
+
+        /* --- 2. 版面佈局 --- */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%; 
+            width: 100%;
+            max-width: 600px; 
+            margin: 0 auto; 
+            position: relative;
+            z-index: 1; 
+        }
+
+        /* --- 頂部固定區 --- */
+        .header-section {
+            flex-shrink: 0; 
+            padding-top: 140px;
+            background: transparent; 
+            z-index: 10; 
+        }
+
+        /* 導航列容器 */
+        .nav-tabs-container {
+            display: flex;
+            overflow-x: auto; 
+            white-space: nowrap;
+            padding: 10px 15px 15px 15px; 
+            scrollbar-width: none; 
+            -webkit-overflow-scrolling: touch;
+        }
+        .nav-tabs-container::-webkit-scrollbar { display: none; }
+
+        /* --- 按鈕樣式 --- */
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            border-radius: 50px; 
+            padding: 10px 16px;  
+            min-width: 60px;     
+            text-align: center;  
+            margin-right: 8px;   
+            font-size: 0.95rem;
+            font-weight: bold;
+            color: #222;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            flex-shrink: 0; 
+        }
+
+        .nav-btn.active {
+            background: #0077CC; 
+            color: white;
+            border: 1px solid #005FA3; 
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 119, 204, 0.5);
+        }
+
+        /* --- 下方內容捲動區 --- */
+        .scroll-content {
+            flex-grow: 1; 
+            overflow-y: auto; 
+            padding: 10px 15px 80px 15px; 
+            -webkit-overflow-scrolling: touch; 
+            overscroll-behavior: contain;
+        }
+
+        .scroll-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* --- 卡片樣式 --- */
+        .content-card {
+            background: rgba(255, 255, 255, 0.65); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: none; 
+            animation: slideUp 0.4s ease-out;
+            width: 100%; 
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+        .content-card.active {
+            display: block;
+        }
+
+        /* --- 釜山介紹相關樣式 --- */
+        .intro-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+            max-width: 340px; 
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .intro-item {
+            background: rgba(255, 255, 255, 0.5); 
+            height: 100px; 
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly; 
+            align-items: center;
+            padding: 5px; 
+        }
+        .intro-icon { font-size: 1.4rem; display: block; margin: 0; line-height: 1; }
+        .intro-label { font-size: 0.8rem; color: #555; font-weight: bold; margin: 0; }
+        .intro-val { font-size: 0.85rem; color: #000; font-weight: bold; line-height: 1.25; text-align: center; }
+
+        .section-header {
+            border-left: 4px solid #0077CC;
+            padding-left: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0077CC;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.8);
+        }
+        
+        p, li { color: #111 !important; font-weight: 500; }
+
+        /* --- Check List 樣式 --- */
+        .checklist-category {
+            font-weight: bold;
+            color: #0077CC;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+            border-bottom: 2px dashed rgba(0, 119, 204, 0.3);
+            padding-bottom: 5px;
+        }
+        .checklist-category:first-child { margin-top: 0; }
+
+        @keyframes blink-red {
+            0% { opacity: 1; color: #ff0000; }
+            50% { opacity: 0.6; color: #ff4444; }
+            100% { opacity: 1; color: #ff0000; }
+        }
+
+        .category-urgent {
+            color: #ff0000 !important;
+            border-bottom-color: rgba(255, 0, 0, 0.3) !important;
+            animation: blink-red 1.5s infinite ease-in-out;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center; 
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+
+        .checklist-item input[type="checkbox"] { display: none; }
+
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #0077CC;
+            border-radius: 6px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            background: white;
+            flex-shrink: 0; 
+        }
+
+        .checklist-item input:checked + .custom-checkbox {
+            background-color: #28a745; 
+            border-color: #28a745;
+        }
+
+        .custom-checkbox::after {
+            content: '✔';
+            color: white;
+            font-size: 16px;
+            display: none;
+        }
+
+        .checklist-item input:checked + .custom-checkbox::after { display: block; }
+
+        .checklist-item input:checked ~ .item-text {
+            text-decoration: line-through;
+            color: #888;
+            opacity: 0.7;
+        }
+
+        .item-text { font-size: 0.95rem; color: #333; line-height: 1.4; }
+        .item-note { font-size: 0.8rem; color: #666; margin-left: 5px; }
+
+        /* --- 拍立得樣式 --- */
+        .polaroid-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .polaroid-card { background-color: #fff; padding: 6px 6px 30px 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); text-align: center; transition: transform 0.3s ease; position: relative; }
+        .polaroid-card:nth-child(odd) { transform: rotate(-2deg); }
+        .polaroid-card:nth-child(even) { transform: rotate(2deg); }
+        .polaroid-card:active, .polaroid-card:hover { transform: scale(1.05) rotate(0deg); z-index: 10; }
+        .polaroid-img { width: 100%; height: 120px; object-fit: cover; background-color: #eee; border: 1px solid #ddd; }
+        .polaroid-caption { font-family: 'Gaegu', cursive, "Microsoft JhengHei"; font-weight: bold; color: #333; font-size: 1rem; margin-top: 10px; margin-bottom: 5px; }
+        .polaroid-desc { font-size: 0.75rem; color: #666; line-height: 1.3; padding: 0 2px; }
+
+        /* --- Day 行程專用樣式 --- */
+        .timeline-item { position: relative; padding-left: 20px; margin-bottom: 25px; border-left: 2px solid rgba(0, 119, 204, 0.3); }
+        .timeline-item:last-child { border-left: none; }
+        .timeline-dot { position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: #0077CC; border-radius: 50%; }
+        .time-label { font-weight: bold; color: #0077CC; margin-bottom: 5px; display: block; font-size: 1rem; }
+        .activity-title { font-weight: bold; font-size: 1.05rem; margin-bottom: 5px; color: #333; }
+        .activity-desc { font-size: 0.9rem; color: #555; line-height: 1.5; margin-bottom: 8px; }
+        .activity-img { width: 100%; border-radius: 10px; margin-top: 5px; margin-bottom: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .info-tag { display: inline-block; background: rgba(0, 119, 204, 0.1); color: #0077CC; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; margin-right: 5px; margin-bottom: 5px; }
+        
+        .naver-btn {
+            display: inline-block;
+            background-color: #03C75A; /* Naver Green */
+            color: white;
+            text-decoration: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            margin-top: 5px;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-layer">
+        <div class="background-image"></div>
+    </div>
+
+    <div class="app-container">
+        
+        <div class="header-section">
+            <div class="nav-tabs-container">
+                <button class="nav-btn active" onclick="switchTab('intro')">釜山介紹</button>
+                <button class="nav-btn" onclick="switchTab('prep')">行前準備</button>
+                <button class="nav-btn" onclick="switchTab('day1')">Day 1</button>
+                <button class="nav-btn" onclick="switchTab('day2')">Day 2</button>
+                <button class="nav-btn" onclick="switchTab('day3')">Day 3</button>
+                <button class="nav-btn" onclick="switchTab('day4')">Day 4</button>
+                <button class="nav-btn" onclick="switchTab('day5')">Day 5</button>
+            </div>
+        </div>
+
+        <div class="scroll-content">
+
+            <div id="intro" class="content-card active">
+                <div class="section-header">🏖️ 韓國第二大城：釜山</div>
+                
+                <p style="font-size: 0.95rem; line-height: 1.8; margin-bottom: 20px;">
+                    這座位於韓國東南端的港口城市，完美融合了現代摩天大樓與壯麗的大自然。白天，你可以搭乘膠囊列車沿著海岸線前行，感受海風的輕撫；傍晚，則適合在廣安大橋下欣賞璀璨的夜景。
+                    <br><br>
+                    不像首爾的快節奏，釜山多了一份海派的豪爽與悠閒。無論是穿梭在五彩繽紛的甘川洞小巷，或是搭乘海上纜車俯瞰松島海景，只要一張 <strong>Visit Busan Pass</strong>，就能輕鬆解鎖這座城市的山海魅力！
+                </p>
+
+                <div class="intro-grid">
+                    <div class="intro-item">
+                        <span class="intro-icon">☀️</span>
+                        <span class="intro-label">4-5月天氣</span>
+                        <div class="intro-val">涼爽舒適 / 薄外套</div>
+                    </div>
+                    <div class="intro-item">
+                        <span class="intro-icon">🚗</span>
+                        <span class="intro-label">交通</span>
+                        <div class="intro-val" style="font-size: 0.8rem;">Uber<br>(名字後+Taiwan)</div>
+                    </div>
+                    <div class="intro-item">
+                        <span class="intro-icon">🔌</span>
+                        <span class="intro-label">電壓</span>
+                        <div class="intro-val">220V (兩孔圓)</div>
+                    </div>
+                    <div class="intro-item">
+                        <span class="intro-icon">🕰️</span>
+                        <span class="intro-label">時差</span>
+                        <div class="intro-val">快台灣 1 小時</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; margin-bottom: 10px; font-weight: bold; color: #0077CC; font-size: 1.1rem; text-shadow: 0 0 5px rgba(255,255,255,0.8);">📸 釜山必訪熱點</div>
+                
+                <div class="polaroid-gallery">
+                    <div class="polaroid-card">
+                        <img src="https://raw.githubusercontent.com/sherrykao1314/Busan/main/1.PNG" class="polaroid-img">
+                        <div class="polaroid-caption">海雲台</div>
+                        <div class="polaroid-desc">釜山最具代表性的沙灘，夏天玩水、冬天餵海鷗，周邊還有最新的 X the Sky 展望台。</div>
+                    </div>
+                    <div class="polaroid-card">
+                        <img src="https://raw.githubusercontent.com/sherrykao1314/Busan/main/2.PNG" class="polaroid-img">
+                        <div class="polaroid-caption">廣安里</div>
+                        <div class="polaroid-desc">正對廣安大橋，夜晚點燈後超級浪漫！是欣賞無人機秀與享受咖啡廳的最佳地點。</div>
+                    </div>
+                    <div class="polaroid-card">
+                        <img src="https://raw.githubusercontent.com/sherrykao1314/Busan/main/3.PNG" class="polaroid-img">
+                        <div class="polaroid-caption">甘川洞文化村</div>
+                        <div class="polaroid-desc">被稱為「韓國的馬丘比丘」，色彩繽紛的房子沿山而建，必找小王子雕像合照！</div>
+                    </div>
+                    <div class="polaroid-card">
+                        <img src="https://raw.githubusercontent.com/sherrykao1314/Busan/main/4.PNG" class="polaroid-img">
+                        <div class="polaroid-caption">松島</div>
+                        <div class="polaroid-desc">擁有韓國第一條海上纜車與天空步道，腳下就是透明的大海，刺激又美麗。</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="prep" class="content-card">
+                <div class="section-header">🎒 釜山行前準備 Check List</div>
+                
+                <div class="checklist-category category-urgent">🔥 絕對必備 (沒帶出不了國)</div>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">護照 <span class="item-note">(有效期限 > 6個月)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">電子入境卡 <span class="item-note">(Q-CODE)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">機票 & 住宿憑證 <span class="item-note">(存手機/列印)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">現金 <span class="item-note">(台幣、韓元)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">信用卡 <span class="item-note">(開通海外刷卡)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">網路 <span class="item-note">(eSIM / SIM卡 / 漫遊)</span></span>
+                </label>
+
+                <div class="checklist-category">🚇 交通與票券</div>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">Visit Busan Pass <span class="item-note">(電子憑證截圖)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">T-Money 卡或 WOWPASS</span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">App: Naver Map <span class="item-note">(找路必備)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">App: Papago <span class="item-note">(翻譯神器)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">App: Uber <span class="item-note">(設定改Taiwan)</span></span>
+                </label>
+
+                <div class="checklist-category">🔌 電器與生活</div>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">轉接頭 <span class="item-note">(220V 兩孔圓形)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">行動電源 & 充電線</span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">牙刷、牙膏、洗面乳 <span class="item-note">(飯店不提供)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">好走的鞋子 <span class="item-note">(釜山坡道多)</span></span>
+                </label>
+
+                <div class="checklist-category">👗 季節與衣物 (4-5月)</div>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">薄外套 / 防風外套 <span class="item-note">(海風大/溫差大)</span></span>
+                </label>
+                <label class="checklist-item">
+                    <input type="checkbox">
+                    <span class="custom-checkbox"></span>
+                    <span class="item-text">遮陽帽 / 墨鏡 <span class="item-note">(紫外線強)</span></span>
+                </label>
+            </div>
+
+            <div id="day1" class="content-card">
+                <div class="section-header">📅 Day 1：抵達與廣安里之夜</div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <span class="time-label">抵達後</span>
+                    <div class="activity-title">✈️ 抵達金海機場 (PUS)</div>
+                    <div class="activity-desc">
+                        出關後，直接叫 Uber 前往廣安里飯店 Check-in。<br>
+                        <span style="font-size:0.85rem; color:#888;">(若時間充裕可先在機場換少量韓幣或儲值 T-Money)</span>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <span class="time-label">20:00 / 22:00</span>
+                    <div class="activity-title">✨ 廣安里 M 無人機表演</div>
+                    <span class="info-tag">週六限定</span><span class="info-tag">免費</span>
+                    <img src="https://raw.githubusercontent.com/sherrykao1314/Busan/main/5.PNG" class="activity-img">
+                    <div class="activity-desc">
+                        每週六晚上的重頭戲！數百架無人機在廣安大橋夜景前排列出各種圖案，非常壯觀。建議提前 15 分鐘到沙灘卡位。
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <span class="time-label">晚餐</span>
+                    <div class="activity-title">🥩 廣安里烤腸 (Gwangalli Gopchang)</div>
+                    <span class="info-tag">營業至 01:00 (最後點餐 23:30)</span>
+                    <img src="https://raw.githubusercontent.com/sherrykao1314/Busan/main/6.PNG" class="activity-img">
+                    <div class="activity-desc">
+                        釜山必吃美食！油脂豐富的烤腸配上燒酒是絕配。這家店就在廣安里附近，走路即可到達。
+                    </div>
+                    <a href="https://naver.me/x8DNd0i4" target="_blank" class="naver-btn">📍 開啟 Naver Map 導航</a>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <span class="time-label">Late Night</span>
+                    <div class="activity-title">🌃 荒嶺山烽燧臺 (夜景)</div>
+                    <span class="info-tag">需搭車前往</span>
+                    <img src="https://raw.githubusercontent.com/sherrykao1314/Busan/main/7.PNG" class="activity-img">
+                    <div class="activity-desc">
+                        吃飽後直接叫 Uber 上山。這裡是俯瞰整個釜山市區與鑽石橋(廣安大橋) 360 度夜景的最佳地點，非常浪漫！
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <span class="time-label">回程</span>
+                    <div class="activity-title">🚖 搭 Uber 返回廣安里住宿</div>
+                    <div class="activity-desc">
+                        結束浪漫的夜景行程，直接叫車回飯店休息，準備迎接明天的行程。
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="day2" class="content-card">Day 2 內容待更新...</div>
+            <div id="day3" class="content-card">Day 3 內容待更新...</div>
+            <div id="day4" class="content-card">Day 4 內容待更新...</div>
+            <div id="day5" class="content-card">Day 5 內容待更新...</div>
+            
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.content-card').forEach(card => card.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelector('.scroll-content').scrollTop = 0;
+        }
+    </script>
+</body>
+</html>
